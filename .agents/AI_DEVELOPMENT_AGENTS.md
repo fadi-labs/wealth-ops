@@ -35,6 +35,7 @@ This is a unified AI development experience folder that centralizes skills, prom
 | `.agents/skills/context-load-context/` | Load or create functional `*AGENTS.md` context files |
 | `.agents/skills/context-load-agents-context/` | Load ancestor AGENTS.md context for a target file |
 | `.agents/skills/create-hld/` | Author a design-only High-Level Design under `.docs/hlds/NNN-<slug>/` |
+| `.agents/skills/create-worktask/` | Author a standalone work task under `.context/work-tasks/` |
 | `.agents/skills/git-commit/` | Commit with conventional format |
 | `.agents/skills/git-commit-push/` | Commit and push to remote |
 | `.agents/skills/git-commit-push-pr/` | Commit, push, and create/update PRs |
@@ -139,3 +140,4 @@ ls -la | grep -E '(\.claude|\.codex|\.cursor)'
 | 2026-07-23 | Changed Codex `approval_policy` from `unless-allow-listed` to `never` to resolve configuration load error. | #54 |
 | 2026-05-30 | Initial version. | |
 | 2026-06-10 | Registered orphaned `UserPromptSubmit` hooks (`worktask-create.sh`, `agentmd-create-update.sh`, `knowledge-rule-enforce.sh`) in `settings.json` — they existed on disk but never fired. | #32 |
+| 2026-09-20 | Replaced the `worktask-create.sh` `UserPromptSubmit` hook with the `create-worktask` skill; hook deleted and deregistered from `settings.json`. Hooks are Claude-only, so worktask creation was unreachable for Codex/Copilot/Cursor, which the rsynced `.agents/` tree also serves. | |

@@ -15,6 +15,7 @@ Skills live **flat**, one directory per skill directly under `.agents/skills/`. 
 | **context-load-agents-context** | Load ancestor AGENTS.md context for a file | `/context-load-agents-context` |
 | **context-load-context** | Load domain context before implementation | `/context-load-context auth` |
 | **create-hld** | Author a design-only High-Level Design under `.docs/hlds/NNN-<slug>/` | `/create-hld <kebab-slug>` |
+| **create-worktask** | Author a standalone work task under `.context/work-tasks/` | `/create-worktask <kebab-slug>` |
 | **git-commit** | Commit with conventional format | `/git-commit [--autonomous]` |
 | **git-commit-push** | Commit and push to remote | `/git-commit-push [--autonomous]` |
 | **git-commit-push-pr** | Commit, push, and create/update PR | `/git-commit-push-pr [--autonomous]` |
@@ -74,6 +75,7 @@ Skills are classified by complexity tier. Each SKILL.md carries a `models` front
 | **ai-brain-dump** | high | Multi-turn synthesis + deep requirement reasoning |
 | **ai-template-sync** | high | Interactive multi-turn Q&A + conditional file sync across tools |
 | **create-hld** | high | Multi-turn clarification gates + architectural judgment (LADRs, NFRs, diagrams) |
+| **create-worktask** | high | Requirement synthesis + investigation; the worktask is the input all nine workflow phases run on |
 
 ### Sub-skill invocation model guidance
 
@@ -92,7 +94,7 @@ Skills are flat under `.agents/skills/`; the category lives in the folder-name p
 | `ai-` | `ai-brain-dump`, `ai-terse`, `ai-template-sync` |
 | `context-` | `context-load-agents-context`, `context-load-context` |
 | `git-` | `git-commit`, `git-commit-push`, `git-commit-push-pr`, `git-sync` |
-| _(none)_ | `create-hld`, `manage-rule-system` |
+| _(none)_ | `create-hld`, `create-worktask`, `manage-rule-system` |
 
 A skill's folder name MUST equal its `name:` frontmatter (this is the slash-command name). When adding a skill, pick the prefix of its category and keep the folder one level under `.agents/skills/`.
 
