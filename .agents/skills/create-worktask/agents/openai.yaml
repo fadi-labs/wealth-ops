@@ -1,0 +1,5 @@
+interface:
+  display_name: "Create Worktask"
+  short_description: "Author a standalone work task under .context/work-tasks/"
+  default_prompt: "Create a work task a standalone AI coder can execute end to end: investigate the area, scaffold .context/work-tasks/<slug>.md, then fill Execution Profile, verified-path Contexts, and full Instructions. Link the standalone template for the process; do not copy it."
+  model: gpt-5.5
