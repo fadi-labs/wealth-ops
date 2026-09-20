@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>WealthOps.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WealthOps.Application\WealthOps.Application.csproj" />
+    <ProjectReference Include="..\WealthOps.Domain\WealthOps.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WealthOps.Infrastructure.UnitTest" />
+    <InternalsVisibleTo Include="WealthOps.Infrastructure.ComponentTest" />
+  </ItemGroup>
+
+</Project>

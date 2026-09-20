@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>WealthOps.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WealthOps.Domain\WealthOps.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WealthOps.Application.UnitTest" />
+    <InternalsVisibleTo Include="WealthOps.Application.ComponentTest" />
+  </ItemGroup>
+
+</Project>

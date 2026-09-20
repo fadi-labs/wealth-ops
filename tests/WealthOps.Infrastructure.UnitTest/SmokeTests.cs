@@ -1,0 +1,7 @@
+namespace WealthOps.Infrastructure.UnitTest;
+
+public class SmokeTests
+{
+    [Fact]
+    public void Passes() => true.ShouldBeTrue();
+}

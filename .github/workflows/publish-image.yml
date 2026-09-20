@@ -1,0 +1,96 @@
+name: Publish image
+
+# Builds the Host container image from the repo Dockerfile and pushes it to the
+# GitHub Container Registry (GHCR). Runs on every push to main (tagged :latest),
+# on version tags v* (semver tags), and on manual dispatch. A manual dispatch
+# never produces the :latest tag — it publishes the user-supplied pre-release
+# version (e.g. 1.0.0-rc.1) so pre-release versions can be cut from any branch.
+#
+# The Dockerfile build stage WORKDIR is /build (not /src), so dotnet restore
+# output shows clean src/WealthOps.* paths, never /src/src/WealthOps.*.
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Pre-release version tag (e.g. 1.0.0-rc.1). Must be a semver-compatible identifier without the leading "v".'
+        required: true
+        type: string
+
+concurrency:
+  group: publish-image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  publish:
+    name: Build & push container image
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # workflow_dispatch inputs cannot express a regex constraint (the Actions
+      # workflow parser rejects any key other than description/type/required/
+      # default/options), so the semver shape is enforced here instead — before
+      # checkout, QEMU, or the GHCR login, so a bad input costs nothing.
+      - name: Validate dispatch version
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Input 'version' ('$VERSION') is not a semver-compatible identifier. Expected MAJOR.MINOR.PATCH with optional -prerelease/+build and no leading 'v' (e.g. 1.0.0-rc.1)."
+            exit 1
+          fi
+          echo "Validated dispatch version: $VERSION"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Derive image metadata (tags + labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ github.ref_name }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ github.ref_name }}

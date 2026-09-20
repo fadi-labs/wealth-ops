@@ -1,0 +1,21 @@
+# Run the WealthOps Host in a container with `docker compose` or
+# `podman-compose`. `build: .` builds from the repo Dockerfile; `image:` lets
+# you instead `pull` the published GHCR image. Keys/config come from your shell
+# or a gitignored .env (compose auto-loads ./.env for ${...} interpolation).
+#
+# The image is built from the repo-root Dockerfile, whose build stage WORKDIR is
+# /build (not /src) — restore output shows clean src/WealthOps.* paths, never
+# /src/src/WealthOps.*. See the Dockerfile header for the layout invariant.
+services:
+  wealth-ops-host:
+    image: ghcr.io/fadi-labs/wealth-ops:latest
+    build: .
+    container_name: wealth-ops-host
+    restart: unless-stopped
+    ports:
+      - "5080:5080"
+    environment:
+      ASPNETCORE_URLS: http://+:5080
+      # Load appsettings.Development.json (debug logging lives behind its
+      # overrides). Drop this line to run Production-quiet.
+      ASPNETCORE_ENVIRONMENT: Development

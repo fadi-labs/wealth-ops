@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>WealthOps.Host</RootNamespace>
+    <UserSecretsId>wealthops-host</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WealthOps.Application\WealthOps.Application.csproj" />
+    <ProjectReference Include="..\WealthOps.Domain\WealthOps.Domain.csproj" />
+    <ProjectReference Include="..\WealthOps.Infrastructure\WealthOps.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WealthOps.Host.UnitTest" />
+    <InternalsVisibleTo Include="WealthOps.Host.IntegrationTest" />
+  </ItemGroup>
+
+</Project>

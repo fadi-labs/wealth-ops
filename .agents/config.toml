@@ -1,0 +1,43 @@
+# Codex CLI configuration — the Codex counterpart of `.agents/settings.json`.
+#
+# Codex reads this file via the repo-root `.codex` → `.agents` symlink
+# (point `CODEX_HOME` at the repo's `.codex`). It is the Codex equivalent of
+# Claude Code's `.agents/settings.json`.
+#
+# Codex's TOML schema has no 1:1 mapping for everything in settings.json.
+# Mapping notes (kept here so future edits don't try to add unsupported keys):
+#   - settings.json `permissions` allow/deny/ask lists → Codex has NO per-command
+#     ACLs. The only equivalent controls are `approval_policy` + `sandbox_mode`
+#     below. The destructive-command `deny` list (DB writes, branch deletes) and
+#     the `ask` entries CANNOT be expressed in Codex config — the sandbox is the
+#     only guardrail.
+#   - settings.json `hooks` (PostToolUse / UserPromptSubmit) → Codex has no hook
+#     system. `notify` only fires on turn completion, not per-tool, so the
+#     context-load / slnx-docs-sync / rule-enforce hooks have no Codex analogue.
+#   - settings.json `compileCommands` / `testCommands` → no Codex equivalent.
+#   - settings.json `env.CLAUDE_CODE_USE_POWERSHELL_TOOL` → Claude-only; omitted.
+
+# Root-context discovery: fall back to AGENTS.md (Codex's native doc file is the
+# same root context Claude reads via CLAUDE.md → AGENTS.md).
+project_doc_fallback_filenames = ["AGENTS.md"]
+
+# settings.json "defaultMode": "bypassPermissions" → run autonomously, no prompts.
+# Defaulting to "never" matches this out-of-the-box behavior.
+approval_policy = "never"
+
+# CC's bypass is guarded by a deny list Codex can't replicate, so scope Codex to
+# the workspace (read/write inside the repo) instead of full host access.
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+# settings.json allows network tooling (curl, gh, gh api, az).
+# Defaulting to false avoids arbitrary outbound calls without explicit approval.
+# Enable locally when network access is needed, e.g. via a machine-local override:
+#   [sandbox_workspace_write]
+#   network_access = true
+network_access = false
+
+[tools]
+# Parallels settings.json's WebFetch allowance (note: Codex web search is not
+# domain-restricted, unlike the two-domain WebFetch allowlist in settings.json).
+web_search = true

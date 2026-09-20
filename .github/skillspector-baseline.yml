@@ -1,0 +1,89 @@
+# SkillSpector accepted-findings baseline
+# ----------------------------------------
+# Findings listed here are SUPPRESSED FROM THE GATE DECISION but still reported in
+# the "Accepted (baselined)" section of the job summary. The gate
+# (.github/scripts/skillspector-report.py) fails on any ACTIVE (non-baselined)
+# finding, so a genuinely new dangerous pattern — real secret exfiltration, hidden
+# instructions, supply-chain — still blocks the PR.
+#
+# Match key: (id, file). LINE-AGNOSTIC by design — every occurrence of that finding
+# id in that file is accepted. This survives the line drift the upstream pin warns
+# about. A NEW id, or the same id in a NEW file, is NOT baselined and blocks the gate.
+#
+# Every entry MUST carry a `reason`. These are first-party agent-tooling findings:
+# "true-by-pattern but expected-for-context" — the flagged behavior IS the skill's
+# function (or is benign documentation), and removing it would break the skill.
+# Re-review this list whenever SKILLSPECTOR_REF is bumped (finding ids/lines may move).
+#
+# SCOPE: this baseline gates the DETERMINISTIC STATIC scan only (the workflow runs the
+# gating scan with --no-llm; policy A). The LLM semantic stage runs advisory/non-blocking
+# and is NOT gated by this file, so its nondeterministic findings are intentionally absent
+# here — they are reported in the job summary for human review. See .agents/skills/AGENTS.md.
+#
+# NOTE: No real secret leakage exists in any skill today. The standing guardrail for
+# any future secret handling is .github/instructions/skill-secret-handling.instructions.md.
+
+accepted:
+  # --- HIGH: subprocess wrappers that MUST shell out to gh/git ---
+  - id: OH1
+    file: agile-github-task-from-diff/scripts/create_github_task_from_diff.py
+    reason: >-
+      "Unvalidated Output Injection" on subprocess.run wrappers. Inputs are CLI flags
+      and git/gh output passed as a list (shell=False) — no shell, SQL, or HTML sink,
+      so there is no injection path. Calling gh/git is the skill's entire purpose;
+      removing subprocess breaks it. Hardened with an explicit shell=False comment.
+
+  # --- HIGH: ai-template-sync rm of the rules symlink + instructions refresh ---
+  - id: TM1
+    file: ai-template-sync/scripts/sync.sh
+    reason: >-
+      "Tool Parameter Abuse" on `rm -f .agents/rules` / `rm -rf .github/instructions`.
+      Replacing the .agents/rules symlink and refreshing .github/instructions (in
+      --overwrite global) IS the sync's core function. Guarded by pre-flight checks
+      that refuse to delete a real directory (exit 65); paths are fixed, not
+      user-controlled. Removing the rm breaks template sync.
+  - id: TM1
+    file: ai-template-sync/SKILL.md
+    reason: >-
+      The literal rm commands appear inside SAFETY-WARNING documentation explaining
+      the destructive sync step and the pre-flight guard against it. The text is the
+      safeguard; deleting it removes the safety documentation. Not an executed command.
+
+  # --- MEDIUM: subprocess module presence (same lines as OH1) ---
+  - id: AST4
+    file: agile-github-task-from-diff/scripts/create_github_task_from_diff.py
+    reason: >-
+      "subprocess module call" — same wrappers as OH1. subprocess is required to invoke
+      gh/git; calls use shell=False with an explicit argument list, so there is no shell
+      interpolation of untrusted input.
+
+  # --- MEDIUM: --autonomous opt-in autonomy phrasing (git skills + index) ---
+  - id: EA2
+    file: README.md
+    reason: >-
+      "Autonomous Decision Making" — describes the opt-in `--autonomous` switch (suppress
+      questions) and the agent fleet model. git-policy already forbids any commit/push
+      without explicit user instruction; nothing destructive runs unprompted.
+  - id: EA2
+    file: git-commit/SKILL.md
+    reason: >-
+      "without asking" documents the `--autonomous` flag. The skill never commits unless
+      the user explicitly invokes it (git-policy). Removing it breaks the documented UX.
+  - id: EA2
+    file: git-commit-push/SKILL.md
+    reason: >-
+      "without asking" documents `--autonomous`. Push happens only on explicit user
+      request per git-policy.
+  - id: EA2
+    file: git-commit-push-pr/SKILL.md
+    reason: >-
+      "without asking" documents `--autonomous`. PR creation happens only on explicit
+      user request per git-policy.
+
+  # --- MEDIUM: session-scoped /tmp dedup tracker (doc-only) ---
+  - id: RA2
+    file: context-load-agents-context/references/design.md
+    reason: >-
+      "Session Persistence" — describes the /tmp session-scoped dedup tracker (load each
+      AGENTS.md once per session). Keyed to the session id, cleaned by the OS; not
+      cross-session persistence or an attacker foothold. Documentation file only.
