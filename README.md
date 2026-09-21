@@ -1,9 +1,5 @@
 # WealthOps
 
-[![Skill Security Scan](https://github.com/fadi-labs/wealth-ops/actions/workflows/skill-scan.yml/badge.svg)](https://github.com/fadi-labs/wealth-ops/actions/workflows/skill-scan.yml)
-
-> AI agent skills in `.agents/skills/` are scanned by [NVIDIA SkillSpector](https://github.com/NVIDIA/SkillSpector) on pull requests that touch `.agents/skills/**` (or the workflow itself), once the PR is marked ready for review. A green badge means the latest scan found no HIGH/CRITICAL findings; results are published to the repository's **Security → Code scanning** tab.
-
 > A personal wealth and portfolio operations platform.
 
 `WealthOps` is a personal wealth and portfolio operations platform, built on a **combined AI DevEx template** — a starting point for teams that want structured, tool-agnostic AI-assisted development from day one. It ships a ready-to-use AI agent toolchain (Claude Code, Cursor, GitHub Copilot, OpenAI Codex) wired up via a single `.agents/` directory, alongside a **.NET 10 / ASP.NET Core** reference implementation built with **Clean Architecture**.

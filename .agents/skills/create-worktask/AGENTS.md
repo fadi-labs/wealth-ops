@@ -17,10 +17,8 @@ lays down the deterministic skeleton from `assets/WORKTASK.template.md`.
   is the process manual and the single place the Constraints, Phase Output Rules and Execution
   Phases live. The predecessor hook contradicted itself — its step 6 listed three sections while
   its closing note called the output "a filled-in copy of the template". Keep one contract.
-- **`assets/WORKTASK.template.md` carries no HTML comments.** SkillSpector rates comments in skill
-  assets `P2` "Hidden Instructions"; `create-hld/assets/*` holds four baselined entries for exactly
-  that. Keeping this asset comment-free means no new entry in `.github/skillspector-baseline.yml`.
-  Authoring guidance belongs in `SKILL.md`, which is read on every invocation anyway.
+- **`assets/WORKTASK.template.md` carries no HTML comments.** Authoring guidance belongs in
+  `SKILL.md`, which is read on every invocation anyway.
 - **Test tiers are L0 unit / L1 component / L2 integration.** Root `AGENTS.md` defines them; there
   is no E2E tier. The predecessor hook shipped both `unit, integration, E2E` and a mislabelled
   `L1 (integration), L2 (E2E)`.
