@@ -1,0 +1,25 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>WealthOps.AppHost</RootNamespace>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>wealthops-apphost</UserSecretsId>
+    <!-- ASPIRE010 advises enabling the Aspire CLI bundle. This host is started with
+         `dotnet run` and needs no bundle-only feature; enabling it would add a CLI download to
+         every restore for nothing. Revisit if a feature that requires the bundle is adopted. -->
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Aspire.Hosting.AppHost is added implicitly by Aspire.AppHost.Sdk — referencing it here
+         would fail central package management with NU1009. -->
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WealthOps.Cli\WealthOps.Cli.csproj" />
+    <ProjectReference Include="..\WealthOps.Host\WealthOps.Host.csproj" />
+  </ItemGroup>
+
+</Project>
