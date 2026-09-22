@@ -48,7 +48,7 @@ Follow in order. **Do not skip phases without outputting the skip reason. Do not
 | 2 | Analysis | | Analyze tech stack, determine tech requirements, identify patterns | session (+ `Explore` fan-out, optional) |
 | 3 | Specification | | Create technical specification with architectural decisions | session |
 | 4 | Planning | 🛑 GATE | Present implementation plan + module breakdown | session |
-| 5 | Documentation | | Update AGENTS.md with approved plan under `## Requirements` | session |
+| 5 | Documentation | | Record the approved plan in the nearest `*AGENTS.md`, in its existing sections | session |
 | 6 | Implementation | | 🔨 YOLO MODE — implement autonomously | session (worktree-isolated writers only if justified) |
 | 7 | Verification | | Quality gate — spec/implementation sync check | session + `/code-review` |
 | 8 | Handover | 🛑 MANDATORY | Document actual implementation; stop before committing | session |
@@ -323,12 +323,12 @@ Does this plan look correct? Reply 'approved' to proceed, or provide feedback.
 **Prerequisite:** Phase 4 plan approved by user.
 
 1. **Update domain AGENTS.md** (or create if missing):
-   - Add to `## Requirements` section: accepted plan from Phase 4
+   - Record the accepted Phase 4 plan in the section that already covers it — `Architecture Decisions` for a LADR, `Key Behaviors` for non-obvious behaviour, `Migration Plans` for follow-on work. `knowledge-conventional-contexts-quality.instructions.md` defines the permitted section list and is authoritative; **do not invent a `## Requirements` section**
    - Document architectural decisions (from Phase 3 LADRs)
    - Record tech stack requirements and integration points
    - Add test references (L0/L1 tier, test sub-folder paths)
 
-2. **Update or create project ADRs** (`.docs/adrs/`):
+2. **Update or create project ADRs** (`.docs/adr/` — singular; `slnx-docs-sync.py` and the `.slnx` solution folders recognise only that name):
    - For each Phase 3 LADR: create corresponding ADR file if it's a foundational architectural decision
    - Update existing ADRs if implementation changes behavior they document
 
@@ -535,3 +535,4 @@ Change set reported. Push is never performed by this workflow.
 | 2026-05-30 | | Initial version. |
 | 2026-09-20 | | Rename workflow phase names to SE lifecycle stages (Discovery→Handover); see `ai-workflow-rules.instructions.md`. |
 | 2026-09-20 | Worktask template remediation | Removed the `git-policy` override and autonomous-commit instructions (commits now governed by the per-task Execution Profile field, made via the `git-commit` skill; push never). Replaced the 17-row phase/model table and the fabricated cost metric with an `## Execution Profile` block; model hints now bind only at spawn points in per-runner `models:` form. Replaced `### Agent Fleet Autonomy` with `### Subagents` (default none; three justified shapes) and the Claude-only pseudo-code block with batched tool calls. Genericized stack-specific naming. Renamed self-check "Gate:" to "Exit check". Fixed `load-context`→`context-load-context` and test tiers to L0 unit / L1 component / L2 integration. Added the FALLBACK banner naming `ai-workflow-rules.instructions.md` authoritative, and this `## Changelog` heading. |
+| 2026-09-21 | WT-001 (M0) | Synced with `ai-workflow-rules.instructions.md`: `.docs/adrs/`→`.docs/adr/` (singular, matching `slnx-docs-sync.py` and the `.slnx` folders); Phase 5 no longer instructs writing an invented `## Requirements` section into AGENTS.md — `knowledge-conventional-contexts-quality.instructions.md` owns the permitted section list. |

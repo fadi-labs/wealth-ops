@@ -180,6 +180,33 @@ These are **correctness-critical** and must be handled explicitly.
 | DS-16 | The FX rate is printed on the transaction — `Vekslingskurs` / `Middelkurs` (Format A), `Valutakurs` (Format B) | No external FX rate source is required |
 | DS-17 | Transactions alone **cannot** produce a lagerbeskatning base — market values at the year boundary are required. This applies at **two different granularities**: the **ASK at account level** (the whole wrapper is lager-taxed), and **each lager-classified instrument held in a realisation-taxed account** (lagerbeskatning follows the instrument, not the wrapper). Realisation-taxed shares need no valuation at all | Sourced from annual statements (primary) or manual entry (fallback). The general form `gain = (closing value + disposals) − (opening value + acquisitions)` takes disposals and acquisitions from the transaction export, so only **opening and closing market value** are supplied manually — and only for holdings that straddle a year boundary |
 
+#### 7.1.1 Confirmed column headers
+
+Header rows carry no personal data (see OI-2), so the exact column names are recorded here verbatim. Both counts match DS-2 exactly.
+
+**Format A** — tab-delimited, 30 columns:
+
+```
+Id  Bogføringsdag  Handelsdag  Valørdag  Depot  Transaktionstype  Værdipapirer  ISIN  Antal  Kurs
+Rente  Samlede afgifter  Valuta  Beløb  Valuta  Indkøbsværdi  Valuta  Resultat  Valuta  Totalt antal
+Saldo  Vekslingskurs  Transaktionstekst  Makuleringsdato  Notanummer  Verifikationsnummer  Kurtage
+Valuta  Middelkurs  Oprindelig rente
+```
+
+**Format B** — semicolon-delimited, 26 columns plus a trailing empty field (27 on split):
+
+```
+Hovedordrenr.;Køb / Salg;Navn;ISIN kode;Ticker kode;Børs;Handelsdato;Valørdato;Stk. / Nom.;Kurs;Valuta;
+Valutakurs;Markedsværdi i handelsvaluta;Valuta;Markedsværdi i afregningsvaluta;Valuta;Kurtage;Valuta;
+Andre omkostninger;Valuta;Afregningsbeløb i DKK;Valuta;Afregningsbeløb i valuta;Valuta;Konto;Depot;
+```
+
+Observations from the confirmed headers:
+
+- **OI-2 (partially answered):** Format A's header carries no column dedicated to dividend withholding tax. `Samlede afgifter` ("total duties/fees") is the only fee-like column outside `Kurtage`; whether withholding tax is folded into it, into `Rente`, or is simply absent from dividend rows is still open — needs a dividend row's `Transaktionstype` value and which columns are populated to settle.
+- Format A additionally carries `Værdipapirer` (instrument name, alongside `ISIN` — DS-15 still applies, ISIN is the join key) and `Oprindelig rente` (unexplained by the DS list so far; likely relevant only to interest-bearing instruments).
+- Both formats repeat a bare `Valuta` header once per amount column, as DS-7 anticipates for Format B; Format A does the same for `Beløb`, `Indkøbsværdi`, `Resultat`, and `Kurtage`/`Middelkurs` — confirm during parsing which `Valuta` occurrence pairs with which amount, since they are positional despite the "bind by name" rule (the repeated header text is itself the exception the parser must special-case).
+
 ### 7.2 Acquisition and file layout
 
 Two regimes, deliberately separated so the locality boundary is structural rather than procedural.
@@ -411,7 +438,7 @@ Deferred, with the extension point that accommodates each.
 | ID | Item | Blocks | Resolution path |
 |:--|:--|:--|:--|
 | OI-1 | Exact tax parameters for both configured years — bracket rates and thresholds, personfradrag, employment allowances, tax ceiling, and the municipal rate. The two years differ materially following the bracket restructuring | FR-M3-1 | Source from skat.dk during M3; each value carries its source reference. Municipal rate resolved from configuration |
-| OI-2 | Whether Format A dividend rows carry a withholding-tax column | FS-12, magnitude of the AC-6 variance | Operator inspects the header row and reports it — a header carries no personal data |
+| OI-2 | Whether Format A dividend rows carry a withholding-tax column | FS-12, magnitude of the AC-6 variance | **Partially resolved (§7.1.1):** the header carries no column named for withholding tax; still open whether it is folded into `Samlede afgifter` or absent from dividend rows — settle with a dividend row's populated columns |
 | OI-3 | Complete transaction-type vocabulary in both formats | FR-M2-3 | Operator reports the distinct values from a full-year export during M2; each unhandled type is a loud failure |
 | OI-4 | For **each** provider: whether the annual statement supplies the ASK taxable base directly, and whether it lists **per-ISIN year-boundary market values** for lager-classified holdings in realisation-taxed accounts (DS-17) | FR-M3-5, FR-M3-7 | Operator checks the available statements from both providers; manual entry via `valuations-<year>.csv` is the fallback |
 | OI-5 | Whether any loan prepayments have been made, which would invalidate the remaining amortisation schedule | FR-M3-6 | Operator confirms; an annual statement figure is the fallback |
@@ -488,3 +515,4 @@ A single checklist to take to each provider. None of these questions disclose pe
 | 2026-09-19 | **Removed all personal specifics** (v1.1). Providers replaced by neutral export format identifiers (Format A/B); municipality, church tax membership, household composition, accounts, and instrument identifiers moved to configuration (§7.3). Added BR-16 and AC-14. | — |
 | 2026-09-20 | **Format specs corrected from actual headers** (v1.2). Both formats confirmed to carry header rows → binding is by column name, unexpected header is a hard failure, positional fallback removed. §7.1 rewritten and extended to DS-1…DS-17, adding Format B's paired currency-base columns (DS-7, the principal trap), gross-vs-net `Markedsværdi`/`Afregningsbeløb` (DS-8), and the absence of cost basis, result, running totals, and a cancellation column in Format B (DS-9, DS-10, DS-12) — so BR-7 reconciliation and the replay check are Format A only, with an internal arithmetic check (DS-11) as Format B's substitute. Added §7.2 acquisition and file layout. Clarified DS-17: lagerbeskatning valuations are needed at **account** level for the ASK **and per ISIN** for lager-classified instruments in realisation-taxed accounts; FR-M3-7 and OI-4 updated accordingly. Added `WealthOps:RulesCacheDirectory`. | — |
 | 2026-09-20 | Added OI-6…OI-10 and §13.1 **Provider information requests** — a per-provider checklist of structural questions pending answers. Two are design-affecting rather than blank-filling: **OI-7** (whether Format A's `Resultat` follows gennemsnitsmetoden — BR-7 rests on it) and **OI-8** (whether the Format B export carries ASK cash movements — decides whether the ASK base is independently computable). | — |
+| 2026-09-22 | Added §7.1.1 with the **confirmed verbatim column headers** for both formats (header text carries no personal data, per OI-2). Both counts match DS-2 exactly. Partially resolves **OI-2**: no column is named for dividend withholding tax; still open whether it is folded into `Samlede afgifter` or absent. Noted two previously undocumented Format A columns (`Værdipapirer`, `Oprindelig rente`) and that the repeated `Valuta` header is positional, not nameable — the one exception to "bind by column name" that the parser must special-case. | — |

@@ -8,7 +8,7 @@ alwaysApply: true
 ---
 # AI-Assisted Coding Workflow
 
-Standard execution workflow for all coding tasks. Aligned with `AI_WORKTASK_PROMOTE_STANDALONE_TEMPLATE.md`. Updated: 2026-09-20
+Standard execution workflow for all coding tasks. Aligned with `AI_WORKTASK_PROMOTE_STANDALONE_TEMPLATE.md`. Updated: 2026-09-21
 
 ## Phase 0: Context Load (MANDATORY BLOCKING)
 
@@ -57,7 +57,9 @@ Skip for: single-line fixes, obvious bugs, config changes.
 
 ## Phase 5: Documentation
 
-Update project documentation with approved plan (e.g., AGENTS.md under `## Requirements`).
+Update project documentation with the approved plan.
+
+Record it in the **section that already covers it** in the nearest `*AGENTS.md` — `Architecture Decisions` for a Phase 3 LADR, `Key Behaviors` for non-obvious behaviour, `Migration Plans` for planned follow-on work. `knowledge-conventional-contexts-quality.instructions.md` defines the permitted section list and it is authoritative; **do not invent a `## Requirements` section**, and do not restate the plan as prose that the code will contradict within a milestone.
 
 Skip when: no documentation convention exists or changes are trivial.
 
@@ -89,7 +91,7 @@ Quality gate — spec/implementation sync check.
 
 - Update the context document loaded in Phase 0 with real implementation details
 - Finalize LADRs with actual outcomes
-- Review whether any `.docs/adrs/` or `.docs/nfrs/` need updating — if the implementation changes behavior covered by an existing ADR or NFR, update it; if a new architectural decision was made, create a new ADR
+- Review whether any `.docs/adr/` or `.docs/nfr/` need updating — if the implementation changes behavior covered by an existing ADR or NFR, update it; if a new architectural decision was made, create a new ADR. **Both directory names are singular**: `.agents/hooks/slnx-docs-sync.py` only syncs paths starting `.docs/adr/` or `.docs/nfr/` into the `.slnx`, and the solution declares folders under exactly those names
 - Update changelog with comprehensive entry
 
 **If a context document was loaded in Phase 0, it MUST be updated in Phase 8.** Loading a context document creates a mandatory update obligation — this is not optional regardless of path (lightweight or full).
@@ -145,3 +147,4 @@ Use when: 3+ files, new patterns, cross-cutting concerns, or ambiguous scope.
 | 2026-06-17 | Phase 0: state that AGENTS.md/`*AGENTS.md` are first-class context (read like CLAUDE.md) and layered domain→sub-domain→feature→technology. Pattern notation `*_AGENTS.md`→`*AGENTS.md` (underscore no longer required). |
 | 2026-09-20 | Rename workflow phase names from mythological codenames to software-engineering lifecycle stages: Discovery, Analysis, Specification, Planning, Documentation, Implementation, Verification, Handover. |
 | 2026-09-20 | Phase 6: added the **Parallelism** subsection (batch independent tool calls; parallel writers require worktree isolation plus an explicit merge step). Fixed `load-context`→`context-load-context`; refreshed the `Updated:` date. |
+| 2026-09-21 | Phase 8: corrected `.docs/adrs/`→`.docs/adr/` and `.docs/nfrs/`→`.docs/nfr/` (singular) — the plural directories never existed, and `slnx-docs-sync.py` plus the `.slnx` solution folders only recognise the singular names. Phase 5: removed the instruction to write an invented `## Requirements` section into AGENTS.md; `knowledge-conventional-contexts-quality.instructions.md` defines the permitted section list and is now named authoritative. Both found during WT-001 (M0). |
