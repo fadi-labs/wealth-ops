@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\WealthOps.Host\WealthOps.Host.csproj" Aliases="HostApp" />
+    <ProjectReference Include="..\..\src\WealthOps.Infrastructure\WealthOps.Infrastructure.csproj" />
     <ProjectReference Include="..\WealthOps.TestFramework\WealthOps.TestFramework.csproj" />
   </ItemGroup>
 

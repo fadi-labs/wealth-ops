@@ -1,10 +1,13 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.3.0">
+<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>WealthOps.TestFramework.Aspire</RootNamespace>
     <IsAspireHost>true</IsAspireHost>
     <IsTestProject>false</IsTestProject>
+    <!-- ASPIRE010: see WealthOps.AppHost.csproj. This host is driven by
+         DistributedApplicationTestingBuilder from the test fixtures, never by the Aspire CLI. -->
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -49,7 +49,7 @@ Keep `*AGENTS.md` files synchronised with code and documentation changes. Functi
 ### Placement Rules
 
 - Functional feature context belongs close to the feature code.
-- Cross-cutting concerns belong under `.docs/hlds/02-nfrs/` or the nearest `*AGENTS.md`.
+- Cross-cutting concerns belong under `.docs/nfr/` or the nearest `*AGENTS.md`.
 - Avoid creating duplicate context files that restate the same plan at multiple levels without adding new information.
 
 ## Implementation Docs
@@ -63,8 +63,9 @@ All planned work is tracked as worktasks under `.context/work-tasks/` (gitignore
 | Domain | `src/WealthOps.Domain/` | Core entities, value objects — no external deps |
 | Application | `src/WealthOps.Application/` | Vertical-slice use cases via Mediator — `Features/<Name>/`, shared code in `Common/` |
 | Infrastructure | `src/WealthOps.Infrastructure/` | EF Core + PostgreSQL (`Persistence/`), HTTP clients (`Clients/`) |
-| Host | `src/WealthOps.Host/` | ASP.NET Core Web API, Serilog, Scalar OpenAPI |
-| ChatHost | `src/WealthOps.ChatHost/` | Standalone LLM microservice — owns Anthropic SDK; talks to Host via HTTP only |
+| Host | `src/WealthOps.Host/` | ASP.NET Core Web API. v1 maps `GET /health` only — `GET /` stays unmapped (the integration smoke test asserts 404) |
+| Cli | `src/WealthOps.Cli/` | **The v1 operator surface** — `chat`, `ingest`, `status`. A second composition root: references Application/Infrastructure/Domain and dispatches Mediator **in-process**, not over HTTP (ADR-001) |
+| AppHost | `src/WealthOps.AppHost/` | Aspire orchestration — pgvector PostgreSQL with a persistent volume. Local inference runs as an **external host process**, so the model endpoint is configuration, never an Aspire resource |
 
 Detailed backend coding rules are maintained in `.agents/rules/backend/` and scoped per-file via frontmatter (see Rules section).
 
@@ -87,7 +88,7 @@ All rules live under `.agents/rules/` as `*.instructions.md` files and are auto-
 dotnet build WealthOps.slnx                    # build
 dotnet test  WealthOps.slnx                    # run all tests
 dotnet run --project src/WealthOps.AppHost      # dev Aspire AppHost
-dotnet run --project src/WealthOps.ChatHost     # ChatHost standalone (separate process from the API Host)
+dotnet run --project src/WealthOps.Cli -- status # CLI: status | chat | ingest <path>
 ```
 
 Target a single test project directly when needed (e.g. `dotnet test tests/WealthOps.Domain.UnitTest`); `ls tests/` lists them — no Trait annotations required. **Gotcha:** the dev Aspire dashboard runs at `http://localhost:15278`; when started from a terminal, use the printed `/login?t=...` URL on first browser visit.
@@ -110,7 +111,27 @@ Authoritative stack and coding conventions for AI coders are in `.agents/rules/p
 
 ## Architecture Decisions (NFRs)
 
-Human-facing reviewer documentation lives in `.docs/wiki/`. Detailed high-level designs, non-functional requirements, and lightweight architecture decision records live under `.docs/hlds/`. Business requirement documents live under `.docs/brds/` — start with `BRD-001-wealthops-tax-agent.md`, the authoritative scope for the tax agent (v1 milestones M0–M3, tracked as `WT-001` … `WT-004` under `.context/work-tasks/`).
+Human-facing reviewer documentation lives in `.docs/wiki/`. Business requirement documents live under `.docs/brds/` — start with `BRD-001-wealthops-tax-agent.md`, the authoritative scope for the tax agent (v1 milestones M0–M3, tracked as `WT-001` … `WT-004` under `.context/work-tasks/`).
+
+**Architecture decision records live under `.docs/adr/`** (singular), which is what `.agents/hooks/slnx-docs-sync.py` and the `WealthOps.slnx` solution folder expect; non-functional records go under `.docs/nfr/`. Existing records:
+
+| ADR | Decision |
+|---|---|
+| [ADR-001](.docs/adr/ADR-001-cli-in-process-composition-root.md) | `WealthOps.Cli` is a direct in-process composition root, not an HTTP client of Host |
+| [ADR-002](.docs/adr/ADR-002-dimensionless-embedding-column.md) | The embedding column carries no declared dimension — the width is data, not schema |
+| [ADR-003](.docs/adr/ADR-003-configuration-is-the-personal-specifics-boundary.md) | Configuration is the sole carrier of personal specifics, validated at startup |
+
+**High-level designs live under `.docs/hlds/`** (plural), one folder per design — `NNN-<slug>/`, scaffolded by the `create-hld` skill.
+
+The plural/singular split is not cosmetic and is easy to get wrong:
+
+| Artifact | Directory | Why |
+|---|---|---|
+| Architecture decision record | `.docs/adr/` | **Singular.** `slnx-docs-sync.py` syncs only paths beginning `.docs/adr/` into `WealthOps.slnx` |
+| Non-functional record | `.docs/nfr/` | **Singular**, same hook |
+| High-level design | `.docs/hlds/` | **Plural**, owned by the `create-hld` skill, which globs `.docs/hlds/[0-9][0-9][0-9]-*/` to pick the next index |
+
+A record filed under the wrong spelling is silently left out of the solution file, or invisible to the skill's numbering.
 
 ## CI/CD
 

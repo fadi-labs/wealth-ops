@@ -55,8 +55,27 @@ await admin.ResetAsync(); // clear stubs between tests
 
 | Container | Local Port | Service |
 |---|---|---|
-| `project-test-postgres` | 15432 | PostgreSQL |
+| `project-test-postgres` | 15432 | PostgreSQL — image `pgvector/pgvector:pg17` |
 | `project-test-wiremock` | 19091 | WireMock HTTP admin + stubbed endpoints |
+
+> **The Postgres image must be pgvector-enabled.** The application's initial migration issues
+> `CREATE EXTENSION vector`, and the L1 persistence tests round-trip a real `vector` column.
+>
+> If you pre-warmed `project-test-postgres` before the image changed from stock `postgres`, the
+> stale container is still reachable on the fixed port and will be reused — migrations then fail on
+> the missing extension. Recreate it once:
+>
+> ```bash
+> docker rm -f project-test-postgres   # or: podman rm -f project-test-postgres
+> ```
+>
+> **Ports are requested, not guaranteed.** Some runtimes (Rancher Desktop among them) publish a
+> random host port regardless of the requested one; `AspireFixture` falls back to discovering it.
+> When connecting by hand, ask rather than assume:
+>
+> ```bash
+> docker port project-test-postgres 5432/tcp
+> ```
 
 ## Collection Fixture Pattern
 

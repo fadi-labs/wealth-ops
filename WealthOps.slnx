@@ -4,6 +4,8 @@
     <Project Path="src/WealthOps.Application/WealthOps.Application.csproj" />
     <Project Path="src/WealthOps.Infrastructure/WealthOps.Infrastructure.csproj" />
     <Project Path="src/WealthOps.Host/WealthOps.Host.csproj" />
+    <Project Path="src/WealthOps.Cli/WealthOps.Cli.csproj" />
+    <Project Path="src/WealthOps.AppHost/WealthOps.AppHost.csproj" />
   </Folder>
   <Folder Name="/tests/TestFramework/">
     <Project Path="tests/WealthOps.TestFramework/WealthOps.TestFramework.csproj" />
@@ -138,7 +140,11 @@
     <File Path=".docs/wiki/ci.md" />
     <File Path=".docs/wiki/testing.md" />
   </Folder>
-  <Folder Name="/.docs/adr/" />
+  <Folder Name="/.docs/adr/">
+    <File Path=".docs/adr/ADR-001-cli-in-process-composition-root.md" />
+    <File Path=".docs/adr/ADR-002-dimensionless-embedding-column.md" />
+    <File Path=".docs/adr/ADR-003-configuration-is-the-personal-specifics-boundary.md" />
+  </Folder>
   <Folder Name="/.docs/nfr/" />
   <Folder Name="/docker/">
     <File Path="Dockerfile" />

@@ -445,3 +445,13 @@ FodyWeavers.xsd
 **/personal-data/
 *.personal.json
 *.personal.csv
+
+# Real operator configuration. appsettings.Example.json is the committed template and carries
+# placeholders only; appsettings.Local.json is where actual municipality, accounts, providers and
+# paths live, and it never leaves the machine (BR-12, BR-15, ADR-003).
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+
+# The default personal data root, in case it is ever created inside a working tree by mistake.
+.wealthops/
+**/.wealthops/

@@ -9,7 +9,7 @@
     "dotnet test"
   ],
   "permissions": {
-    "defaultMode": "bypassPermissions",
+    "defaultMode": "auto",
     "allow": [
       "Read(**)",
       "Edit(**)",
@@ -96,7 +96,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .agents/hooks/slnx-docs-sync.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.agents/hooks/slnx-docs-sync.py\""
           }
         ]
       },
@@ -105,7 +105,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".agents/hooks/load-agents-context.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR/.agents/hooks/load-agents-context.sh\""
           }
         ]
       }
@@ -115,7 +115,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".agents/hooks/manage-rule-system-context.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR/.agents/hooks/manage-rule-system-context.sh\""
           }
         ]
       },
@@ -123,7 +123,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".agents/hooks/code-review-standards-context.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR/.agents/hooks/code-review-standards-context.sh\""
           }
         ]
       },
@@ -131,7 +131,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".agents/hooks/agentmd-create-update.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR/.agents/hooks/agentmd-create-update.sh\""
           }
         ]
       },
@@ -139,7 +139,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".agents/hooks/knowledge-rule-enforce.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR/.agents/hooks/knowledge-rule-enforce.sh\""
           }
         ]
       }

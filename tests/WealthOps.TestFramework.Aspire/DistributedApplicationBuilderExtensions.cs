@@ -23,7 +23,18 @@ internal static class DistributedApplicationBuilderExtensions
         this IDistributedApplicationBuilder builder,
         IResourceBuilder<ParameterResource> postgresPassword)
     {
+        // pgvector, not stock postgres: the application's initial migration issues
+        // CREATE EXTENSION vector, and L1 component tests round-trip a real vector column.
+        //
+        // Name and port are unchanged so CI (.github/actions/aspire-test-with-coverage/run.sh)
+        // and .docs/wiki/testing.md stay valid. A developer who pre-warmed a stock-postgres
+        // container before this change must remove it once —
+        //   docker rm -f project-test-postgres
+        // — otherwise the fixed-endpoint probe reuses it and migrations fail on the missing
+        // extension. WealthOpsTestDatabase reports exactly that if it happens.
         var postgres = builder.AddPostgres("postgres", password: postgresPassword, port: 15432)
+            .WithImage("pgvector/pgvector")
+            .WithImageTag("pg17")
             .WithContainerName("project-test-postgres")
             .WithContainerRuntimeArgs(
                 "--label", $"com.docker.compose.project={DockerDesktopGroupName}",
